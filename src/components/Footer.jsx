@@ -38,6 +38,11 @@ export default function Footer({ onNavigate }) {
                     CONTACT (문의 및 안내)
                   </button>
                 </li>
+                <li>
+                  <button onClick={() => onNavigate('admin')} className="hover:text-sky-400 text-slate-500 transition-colors">
+                    ADMIN (관리자 Center)
+                  </button>
+                </li>
               </ul>
             </div>
 

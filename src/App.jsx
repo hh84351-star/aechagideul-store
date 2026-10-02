@@ -48,6 +48,19 @@ export default function App() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isCheckoutDisabledMode, setIsCheckoutDisabledMode] = useState(false);
 
+  // Auto-detect ?admin=true or #admin in URL and switch activeTab to 'admin'
+  useEffect(() => {
+    const checkUrlForAdmin = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('admin') === 'true' || window.location.hash === '#admin') {
+        setActiveTab('admin');
+      }
+    };
+
+    checkUrlForAdmin();
+    window.addEventListener('popstate', checkUrlForAdmin);
+  }, []);
+
   // Load Hybrid Data on Mount
   useEffect(() => {
     async function loadData() {
