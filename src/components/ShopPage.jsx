@@ -66,41 +66,34 @@ export default function ShopPage({
     <div className="space-y-12 pb-24 bg-[#F8FAFC]">
       {/* 1. TOP 2 PROMO BANNERS (배너_1.png & 배너_2.jpg) */}
       {banners && banners.length > 0 && (
-        <section className="relative overflow-hidden bg-white rounded-3xl border border-sky-100/80 shadow-xs mx-4 sm:mx-8 lg:mx-auto max-w-6xl mt-6">
-          <div className="relative h-[300px] sm:h-[380px] w-full">
+        <section className="relative overflow-hidden bg-[#F0F7FF] rounded-3xl border border-sky-100 shadow-xs mx-4 sm:mx-8 lg:mx-auto max-w-6xl mt-6">
+          <div className="relative aspect-[2.85/1] w-full overflow-hidden">
             {banners.slice(0, 2).map((banner, index) => (
               <div
                 key={banner.id}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                onClick={() => handleBannerClick(banner.categoryFilter)}
+                className={`absolute inset-0 transition-opacity duration-700 ease-in-out cursor-pointer group ${
                   index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
                 }`}
               >
                 <img
                   src={banner.image}
                   alt={banner.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain group-hover:scale-[1.01] transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-950/30 to-transparent flex items-center">
-                  <div className="px-6 sm:px-12 max-w-lg text-white space-y-3">
-                    <span className="inline-block px-3 py-1 bg-sky-500 text-white text-[10px] font-black tracking-widest uppercase rounded-full shadow-xs">
-                      {banner.tag}
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
-                      {banner.title}
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-200 font-medium">
-                      {banner.subtitle}
-                    </p>
-                    <div className="pt-2">
-                      <button
-                        onClick={() => handleBannerClick(banner.categoryFilter)}
-                        className="px-6 py-2.5 bg-white text-slate-900 hover:bg-sky-500 hover:text-white font-bold text-xs rounded-full transition-all shadow-md flex items-center gap-2 group"
-                      >
-                        <span>{banner.buttonText}</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    </div>
-                  </div>
+                
+                {/* Floating Subtle Action Pill (Bottom Right) */}
+                <div className="absolute bottom-2.5 sm:bottom-4 right-2.5 sm:right-4 z-20">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBannerClick(banner.categoryFilter);
+                    }}
+                    className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-white/75 hover:bg-white text-slate-600 hover:text-sky-600 font-extrabold text-[9px] sm:text-[11px] rounded-full shadow-xs border border-sky-100/80 backdrop-blur-xs transition-all flex items-center gap-1 opacity-90 group-hover:opacity-100"
+                  >
+                    <span>{banner.buttonText}</span>
+                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </button>
                 </div>
               </div>
             ))}

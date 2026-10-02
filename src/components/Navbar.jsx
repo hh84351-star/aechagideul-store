@@ -11,7 +11,7 @@ export default function Navbar({
 }) {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-100/80 transition-all shadow-xs">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
         
         {/* Left: Image Logo (/assets/images/애차기들_로고.png) */}
         <button 
@@ -21,7 +21,7 @@ export default function Navbar({
           <img
             src="/assets/images/애차기들_로고.png"
             alt="애차기들 로고"
-            className="h-12 sm:h-14 object-contain group-hover:scale-105 transition-transform"
+            className="h-9 sm:h-11 object-contain group-hover:scale-105 transition-transform"
           />
         </button>
 

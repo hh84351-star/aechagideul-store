@@ -34,7 +34,7 @@ export default function AboutPage({ characters, onNavigateToShop }) {
       <section id="stacked-banner-section" className="relative min-h-[300vh] bg-[#D6F4FF] border-b border-sky-200/60">
         
         {/* Sticky Container */}
-        <div className="sticky top-20 h-[calc(100vh-5rem)] flex flex-col items-center justify-start p-4 sm:p-8 overflow-hidden z-10">
+        <div className="sticky top-16 sm:top-18 h-[calc(100vh-4.5rem)] flex flex-col items-center justify-start p-4 sm:p-8 overflow-hidden z-10">
           
           {/* Fixed Top Brand Copy Text */}
           <div className="max-w-3xl mx-auto text-center space-y-2 pt-2 z-20">
