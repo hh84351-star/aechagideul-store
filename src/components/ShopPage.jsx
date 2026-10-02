@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ShoppingBag, Heart, ArrowRight, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, ArrowRight, Star } from 'lucide-react';
 
 export default function ShopPage({ 
   products, 
@@ -7,13 +7,13 @@ export default function ShopPage({
   characters, 
   wishlistIds,
   onToggleWishlist,
-  onAddToCart, 
   onSelectProduct 
 }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedCharacter, setSelectedCharacter] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
+  const [bestSlideIndex, setBestSlideIndex] = useState(0);
 
   // Auto slide promo banner
   useEffect(() => {
@@ -26,6 +26,20 @@ export default function ShopPage({
 
   // BEST Products List (Top Section)
   const bestProducts = products.filter((p) => p.isBest);
+  const itemsPerPage = 2;
+  const maxBestPages = Math.ceil(bestProducts.length / itemsPerPage);
+  const currentBestItems = bestProducts.slice(
+    bestSlideIndex * itemsPerPage,
+    (bestSlideIndex + 1) * itemsPerPage
+  );
+
+  const handleNextBest = () => {
+    setBestSlideIndex((prev) => (prev + 1) % maxBestPages);
+  };
+
+  const handlePrevBest = () => {
+    setBestSlideIndex((prev) => (prev - 1 + maxBestPages) % maxBestPages);
+  };
 
   // Category Filtered Products
   const filteredProducts = products.filter((p) => {
@@ -160,7 +174,7 @@ export default function ShopPage({
         </div>
       </section>
 
-      {/* 3. BEST PRODUCTS SHOWCASE (Shown FIRST) */}
+      {/* 3. BEST PRODUCTS SHOWCASE (2 Items Per View + Sideways Slider) */}
       {selectedCategory === 'all' && selectedCharacter === 'all' && bestProducts.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           <div className="flex items-center justify-between mb-4">
@@ -172,17 +186,41 @@ export default function ShopPage({
                 인기 베스트 굿즈
               </h3>
             </div>
-            <span className="text-[11px] text-slate-400 font-medium">가장 많이 사랑받는 아이템</span>
+
+            {/* Sideways Navigation Buttons for BEST items (2 per slide) */}
+            {maxBestPages > 1 && (
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-400 font-semibold">
+                  {bestSlideIndex + 1} / {maxBestPages}
+                </span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={handlePrevBest}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-sky-50 hover:text-sky-600 transition-colors shadow-xs"
+                    title="이전 상품"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleNextBest}
+                    className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-sky-50 hover:text-sky-600 transition-colors shadow-xs"
+                    title="다음 상품"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bestProducts.map((product) => (
-              <ProductCardItem
+          {/* 2 Items Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {currentBestItems.map((product) => (
+              <ProductCardItemNoAdd
                 key={product.id}
                 product={product}
                 isWishlisted={wishlistIds.includes(product.id)}
                 onToggleWishlist={onToggleWishlist}
-                onAddToCart={onAddToCart}
                 onSelectProduct={onSelectProduct}
               />
             ))}
@@ -190,20 +228,22 @@ export default function ShopPage({
         </section>
       )}
 
-      {/* 4. MAIN CATEGORY CATALOG SECTION */}
+      {/* 4. MAIN CATEGORY CATALOG SECTION (ALL 5 Categories Maintained) */}
       <section id="catalog-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200/60 pt-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          {/* Category Tabs (ONLY 키링 and 티셔츠) */}
-          <div className="flex items-center gap-2">
+          {/* All 5 Categories Maintained */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 custom-scrollbar">
             {[
               { id: 'all', label: '전체 굿즈' },
               { id: 'keyring', label: '🧸 뽀작 키링' },
               { id: 'tshirt', label: '👕 티셔츠' },
+              { id: 'stationery', label: '📖 문구/다이어리' },
+              { id: 'tech', label: '💡 무드등/테크' },
             ].map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-5 py-2 rounded-full text-xs font-extrabold transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all whitespace-nowrap ${
                   selectedCategory === cat.id
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -230,14 +270,14 @@ export default function ShopPage({
           </div>
         </div>
 
-        {/* Product Catalog Grid or Empty State */}
+        {/* Product Catalog Grid OR "상품 준비중입니다." Empty State */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 shadow-xs space-y-2">
-            <p className="text-slate-800 text-sm font-bold">상품준비중입니다.</p>
-            <p className="text-slate-400 text-xs font-medium">더 예쁘고 포근한 굿즈로 찾아올게요!</p>
+            <p className="text-slate-800 text-base font-bold">상품 준비중입니다.</p>
+            <p className="text-slate-400 text-xs font-medium">더 예쁘고 포근한 굿즈로 준비하여 찾아뵙겠습니다!</p>
             <button
               onClick={() => { setSelectedCategory('all'); setSelectedCharacter('all'); }}
-              className="mt-3 px-4 py-1.5 bg-sky-500 text-white text-xs font-bold rounded-full hover:bg-sky-600 transition-colors"
+              className="mt-4 px-5 py-2 bg-sky-500 text-white text-xs font-bold rounded-full hover:bg-sky-600 transition-colors shadow-xs"
             >
               전체 굿즈 보기
             </button>
@@ -245,12 +285,11 @@ export default function ShopPage({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <ProductCardItem
+              <ProductCardItemNoAdd
                 key={product.id}
                 product={product}
                 isWishlisted={wishlistIds.includes(product.id)}
                 onToggleWishlist={onToggleWishlist}
-                onAddToCart={onAddToCart}
                 onSelectProduct={onSelectProduct}
               />
             ))}
@@ -261,27 +300,24 @@ export default function ShopPage({
   );
 }
 
-// Clean Product Card Item Component
-function ProductCardItem({ 
+// Clean Product Card Component WITHOUT '담기' button in Grid
+function ProductCardItemNoAdd({ 
   product, 
   isWishlisted, 
   onToggleWishlist, 
-  onAddToCart, 
   onSelectProduct 
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div 
-      className="group bg-white rounded-3xl border border-slate-100 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between"
+      className="group bg-white rounded-3xl border border-slate-100 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onSelectProduct(product)}
     >
       {/* Product Image Area with Hover Photo Toggle */}
-      <div 
-        className="relative aspect-square bg-[#F8FAFC] overflow-hidden cursor-pointer p-4 flex items-center justify-center"
-        onClick={() => onSelectProduct(product)}
-      >
+      <div className="relative aspect-square bg-[#F8FAFC] overflow-hidden p-4 flex items-center justify-center">
         <img
           src={isHovered && product.hoverImage ? product.hoverImage : product.image}
           alt={product.name}
@@ -324,16 +360,13 @@ function ProductCardItem({
             <span className="text-slate-400">({product.reviewsCount || 0})</span>
           </div>
 
-          <h4 
-            onClick={() => onSelectProduct(product)}
-            className="font-bold text-slate-900 text-xs leading-snug hover:text-sky-600 transition-colors line-clamp-2 cursor-pointer"
-          >
+          <h4 className="font-bold text-slate-900 text-xs leading-snug group-hover:text-sky-600 transition-colors line-clamp-2">
             {product.name}
           </h4>
         </div>
 
-        {/* Price & Action Button */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+        {/* Price Only (NO '담기' Button in Grid) */}
+        <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
           <div>
             {product.originalPrice > product.price && (
               <span className="text-[10px] text-slate-400 line-through block">
@@ -344,14 +377,9 @@ function ProductCardItem({
               ₩ {product.price.toLocaleString()}
             </span>
           </div>
-
-          <button
-            onClick={() => onAddToCart(product)}
-            className="px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1"
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>담기</span>
-          </button>
+          <span className="text-[10px] text-sky-600 font-bold group-hover:translate-x-1 transition-transform">
+            상세보기 →
+          </span>
         </div>
       </div>
     </div>
