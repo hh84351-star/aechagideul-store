@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ArrowDown } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export default function AboutPage({ characters, onNavigateToShop }) {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -12,7 +12,7 @@ export default function AboutPage({ characters, onNavigateToShop }) {
     '/assets/images/어바웃_배너_5.png'
   ];
 
-  // Track scroll position for stacked banner cards 1~5
+  // Track scroll position for seamless stacked PNG banners 1~5
   useEffect(() => {
     const handleScroll = () => {
       const bannerSection = document.getElementById('stacked-banner-section');
@@ -30,14 +30,14 @@ export default function AboutPage({ characters, onNavigateToShop }) {
 
   return (
     <div className="bg-[#F8FAFC] pb-32">
-      {/* 1. STICKY HEADER & STACKED SCROLL BANNERS 1~5 */}
-      <section id="stacked-banner-section" className="relative min-h-[300vh] bg-gradient-to-b from-[#F0F7FF] via-[#E6F2FE] to-[#F8FAFC] border-b border-sky-100">
+      {/* 1. STICKY HEADER & SEAMLESS OVERLAY PNG SCROLL BANNERS 1~5 */}
+      <section id="stacked-banner-section" className="relative min-h-[300vh] bg-[#D6F4FF] border-b border-sky-200/60">
         
         {/* Sticky Container */}
-        <div className="sticky top-16 h-[calc(100vh-4rem)] flex flex-col justify-between p-4 sm:p-8 overflow-hidden z-10">
+        <div className="sticky top-20 h-[calc(100vh-5rem)] flex flex-col items-center justify-start p-4 sm:p-8 overflow-hidden z-10">
           
           {/* Fixed Top Brand Copy Text */}
-          <div className="max-w-3xl mx-auto text-center space-y-2 pt-4 z-20">
+          <div className="max-w-3xl mx-auto text-center space-y-2 pt-2 z-20">
             <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-serif italic">
               애차기들 브랜드 STORE
             </h1>
@@ -54,45 +54,29 @@ export default function AboutPage({ characters, onNavigateToShop }) {
             </p>
           </div>
 
-          {/* Stacked Banners Area directly below text */}
-          <div className="flex-1 relative w-full max-w-4xl mx-auto my-4 rounded-3xl overflow-hidden shadow-lg border border-sky-100 bg-white">
+          {/* Seamless PNG Banner Overlay Area (NO WHITE BOX, NO CARDS, NO BORDER) */}
+          <div className="flex-1 relative w-full max-w-4xl mx-auto mt-4 flex items-center justify-center">
             {aboutBanners.map((bannerUrl, idx) => {
-              // Calculate stack position
+              // Calculate layer activation threshold
               const stepThreshold = idx / (aboutBanners.length - 1);
-              const isStacked = scrollProgress >= stepThreshold || idx === 0;
+              // Base image (idx === 0) is always fully visible; PNG layers 1~4 fade in as user scrolls
+              const opacity = idx === 0 
+                ? 1 
+                : Math.max(0, Math.min(1, (scrollProgress - (stepThreshold - 0.25)) / 0.25));
 
               return (
-                <div
+                <img
                   key={idx}
-                  className={`absolute inset-0 transition-all duration-700 ease-out flex items-center justify-center bg-white ${
-                    isStacked
-                      ? 'translate-y-0 opacity-100 scale-100'
-                      : 'translate-y-full opacity-0 scale-95'
-                  }`}
-                  style={{ zIndex: idx + 1 }}
-                >
-                  <img
-                    src={bannerUrl}
-                    alt={`어바웃 배너 ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-4 right-4 bg-black/60 text-white text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-xs">
-                    0{idx + 1} / 05
-                  </div>
-                </div>
+                  src={bannerUrl}
+                  alt={`어바웃 배너 ${idx + 1}`}
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none transition-opacity duration-300 ease-out"
+                  style={{
+                    zIndex: idx + 1,
+                    opacity: opacity,
+                  }}
+                />
               );
             })}
-          </div>
-
-          {/* Scroll Down Indicator */}
-          <div className="text-center pb-2 z-20">
-            <a 
-              href="#section-story-1" 
-              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-sky-600 bg-white/80 backdrop-blur-xs px-4 py-1.5 rounded-full border border-sky-100 shadow-xs hover:bg-sky-50 transition-all"
-            >
-              <span>스크롤을 내리면 1~5번 배너가 상단 텍스트 밑으로 차곡차곡 겹쳐집니다</span>
-              <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
-            </a>
           </div>
         </div>
       </section>
@@ -131,14 +115,14 @@ export default function AboutPage({ characters, onNavigateToShop }) {
         </div>
       </section>
 
-      {/* 3. CARD 2: 02. CORE PHILOSOPHY (Title: '나'라는 사람의 이해 + Circle Frame 어바웃_소개_2.jpg) */}
+      {/* 3. CARD 2: 02. CORE PHILOSOPHY (Title: '나'라는 사람의 이해 + Circle Frame 어바웃_소개_2.png) */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-b border-slate-200/60">
         <div className="bg-white rounded-3xl border border-sky-100 shadow-xs p-8 sm:p-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          {/* Left Circle Box Image (어바웃_소개_2.jpg) */}
+          {/* Left Circle Box Image (어바웃_소개_2.png) */}
           <div className="md:col-span-5 order-2 md:order-1 flex justify-center">
             <div className="w-48 h-48 sm:w-60 sm:h-60 rounded-full border-4 border-sky-100 overflow-hidden shadow-md bg-sky-50">
               <img
-                src="/assets/images/어바웃_소개_2.jpg"
+                src="/assets/images/어바웃_소개_2.png"
                 alt="어바웃 소개 2"
                 className="w-full h-full object-cover"
               />

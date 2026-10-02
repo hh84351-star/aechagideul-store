@@ -183,7 +183,7 @@ export default function ShopPage({
                 BEST
               </span>
               <h3 className="text-base font-black text-slate-900">
-                인기 베스트 굿즈
+                BEST
               </h3>
             </div>
 
