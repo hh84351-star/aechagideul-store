@@ -18,10 +18,17 @@ export default function AdminPage({
 }) {
   // Password lock state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
+  const [loginInput, setLoginInput] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordStatus, setPasswordStatus] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -76,7 +83,7 @@ export default function AdminPage({
     e.preventDefault();
     if (isSigningIn) return;
     setIsSigningIn(true); setPasswordError('');
-    try { await signInAdmin(emailInput, passwordInput); setIsAuthenticated(true); setPasswordInput(''); }
+    try { await signInAdmin(loginInput, passwordInput); setIsAuthenticated(true); setPasswordInput(''); }
     catch (error) { setPasswordError(error.message); }
     finally { setIsSigningIn(false); }
   };
@@ -84,7 +91,27 @@ export default function AdminPage({
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) { setSaveError('로그아웃 실패: ' + error.message); return; }
-    setIsAuthenticated(false); setEditingProduct(null); setIsAddModalOpen(false);
+    setIsAuthenticated(false); setEditingProduct(null); setIsAddModalOpen(false); clearPasswordForm();
+  };
+
+  const clearPasswordForm = () => {
+    setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+    setPasswordStatus(''); setIsPasswordOpen(false);
+  };
+  const handleChangePassword = async e => {
+    e.preventDefault();
+    if (isChangingPassword) return;
+    if (newPassword.length < 8) { setPasswordStatus('새 비밀번호는 8자 이상으로 입력해주세요.'); return; }
+    if (newPassword !== confirmPassword) { setPasswordStatus('새 비밀번호가 서로 다릅니다.'); return; }
+    setIsChangingPassword(true); setPasswordStatus('');
+    try {
+      await signInAdmin('tndtlf123', currentPassword);
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      setPasswordStatus('비밀번호 변경이 완료되었습니다. 다음 로그인부터 새 비밀번호를 사용해주세요.');
+    } catch (error) { setPasswordStatus(error.message); }
+    finally { setIsChangingPassword(false); }
   };
 
   const persistProduct = async (product, adding = false) => {
@@ -143,13 +170,13 @@ export default function AdminPage({
           <div>
             <h2 className="text-xl font-black text-slate-900">어드민 보안 로그인</h2>
             <p className="text-xs text-slate-400 mt-1 font-medium">
-              등록된 관리자 이메일과 비밀번호로 로그인해주세요.
+              관리자 아이디와 비밀번호로 로그인해주세요.
             </p>
           </div>
 
           {!supabase && <p role="alert" className="text-xs text-rose-600">서버 연결 설정이 없습니다. 배포 환경 변수를 확인해주세요.</p>}
           <form onSubmit={handlePasswordSubmit} className="space-y-3">
-            <input type="email" aria-label="관리자 이메일" placeholder="관리자 이메일" autoComplete="username" required value={emailInput} onChange={e => setEmailInput(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs" />
+            <input type="text" aria-label="관리자 아이디" placeholder="아이디 입력" autoComplete="username" required value={loginInput} onChange={e => setLoginInput(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs" />
             <input
               type="password"
               aria-label="관리자 비밀번호"
@@ -188,6 +215,24 @@ export default function AdminPage({
       {productsError && <p role="alert" className="text-rose-600">{productsError} 새로고침 후 다시 시도해주세요.</p>}
       {productsLoading && !productsError && <p role="status">상품을 불러오는 중입니다.</p>}
       {saveError && <p role="alert" className="p-3 bg-rose-50 text-rose-700 rounded-xl text-sm">{saveError}</p>}
+      {isPasswordOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="비밀번호 변경">
+          <form onSubmit={handleChangePassword} className="bg-white rounded-3xl p-6 max-w-md w-full space-y-4">
+            <h2 className="font-bold">비밀번호 변경</h2>
+            <p className="text-xs text-slate-500">로그인 아이디: tndtlf123</p>
+            <fieldset disabled={isChangingPassword} className="space-y-3">
+              <input type="password" aria-label="현재 비밀번호" placeholder="현재 비밀번호" autoComplete="current-password" required value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="w-full border rounded-xl px-3 py-2 text-sm" />
+              <input type="password" aria-label="새 비밀번호" placeholder="새 비밀번호 (8자 이상)" autoComplete="new-password" minLength={8} required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full border rounded-xl px-3 py-2 text-sm" />
+              <input type="password" aria-label="새 비밀번호 확인" placeholder="새 비밀번호 확인" autoComplete="new-password" minLength={8} required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full border rounded-xl px-3 py-2 text-sm" />
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={clearPasswordForm} className="px-4 py-2 rounded-xl bg-slate-100 text-sm">닫기</button>
+                <button type="submit" className="px-4 py-2 rounded-xl bg-sky-500 text-white text-sm">{isChangingPassword ? '변경 중…' : '비밀번호 변경하기'}</button>
+              </div>
+            </fieldset>
+            {passwordStatus && <p role="status" className="text-sm text-slate-700">{passwordStatus}</p>}
+          </form>
+        </div>
+      )}
       {/* Admin Header */}
       <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -204,6 +249,7 @@ export default function AdminPage({
         </div>
 
         <div className="flex items-center gap-2 self-stretch sm:self-auto">
+          <button onClick={() => { setPasswordStatus(''); setIsPasswordOpen(true); }} disabled={isSaving || isUploading} className="px-3 py-2 text-xs bg-slate-800 rounded-xl">비밀번호 변경</button>
           <button onClick={handleLogout} disabled={isSaving || isUploading} className="px-3 py-2 text-xs bg-slate-800 rounded-xl">로그아웃</button>
           <button
             onClick={onResetData}
