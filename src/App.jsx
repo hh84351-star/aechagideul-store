@@ -18,7 +18,6 @@ import {
 
 import { 
   getProducts, 
-  saveProductsToStorage, 
   getInquiries, 
   saveInquiriesToStorage 
 } from './lib/supabase';
@@ -29,6 +28,8 @@ export default function App() {
 
   // App Data States
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState('');
   const [banners, setBanners] = useState(INITIAL_BANNERS);
   const [inquiries, setInquiries] = useState(INITIAL_INQUIRIES);
 
@@ -64,23 +65,15 @@ export default function App() {
   // Load Hybrid Data on Mount
   useEffect(() => {
     async function loadData() {
-      const prodData = await getProducts();
-      if (prodData && prodData.length > 0) setProducts(prodData);
+      try { setProducts(await getProducts()); }
+      catch (error) { setProductsError(error.message); }
+      finally { setProductsLoading(false); }
 
       const inqData = await getInquiries();
       if (inqData && inqData.length > 0) setInquiries(inqData);
     }
     loadData();
   }, []);
-
-  // Save changes
-  useEffect(() => {
-    saveProductsToStorage(products);
-  }, [products]);
-
-  useEffect(() => {
-    saveInquiriesToStorage(inquiries);
-  }, [inquiries]);
 
   useEffect(() => {
     localStorage.setItem('aechagi_cart', JSON.stringify(cart));
@@ -150,16 +143,18 @@ export default function App() {
 
   // Inquiry operations
   const handleSendInquiry = (newInquiry) => {
-    setInquiries((prev) => [newInquiry, ...prev]);
+    const next = [newInquiry, ...inquiries];
+    setInquiries(next);
+    saveInquiriesToStorage(next);
   };
 
   // Reset to default data
   const handleResetData = () => {
-    if (window.confirm('모든 데이터(상품, 배너, 문의 내역)를 초기 데이터로 복원하시겠습니까?')) {
-      setProducts(INITIAL_PRODUCTS);
+    if (window.confirm('배너와 문의 내역을 이 브라우저에서 초기화하시겠습니까? 상품은 유지됩니다.')) {
+      // Keep the saved product catalog.
       setBanners(INITIAL_BANNERS);
       setInquiries(INITIAL_INQUIRIES);
-      localStorage.clear();
+      localStorage.removeItem('aechagi_inquiries');
       alert('데이터가 성공적으로 리셋되었습니다!');
     }
   };
@@ -213,6 +208,8 @@ export default function App() {
           <AdminPage
             products={products}
             setProducts={setProducts}
+            productsLoading={productsLoading || Boolean(productsError)}
+            productsError={productsError}
             banners={banners}
             setBanners={setBanners}
             inquiries={inquiries}

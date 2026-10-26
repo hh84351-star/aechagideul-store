@@ -91,8 +91,8 @@ export const INITIAL_PRODUCTS = [
     reviewsCount: 128,
     isBest: true,
     isNew: false,
-    image: "/assets/goods/k_둥둥키링1.png",
-    hoverImage: "/assets/goods/k_둥둥키링2.png",
+    image: "/assets/goods/k_키링_둥둥1.jpg",
+    hoverImage: "/assets/goods/k_키링_둥둥2.jpg",
     description: "어화둥둥 마음을 따뜻하게 안아주는 둥둥이 카피바라 키링. 부드러운 극세사 모찌 원단과 탄탄한 가방 고리가 포함되어 있습니다.",
     options: ["기본형 (카피바라 둥둥)"]
   },
@@ -107,8 +107,8 @@ export const INITIAL_PRODUCTS = [
     reviewsCount: 94,
     isBest: true,
     isNew: false,
-    image: "/assets/goods/k_삐쭈키링1.png",
-    hoverImage: "/assets/goods/k_삐쭈키링2.png",
+    image: "/assets/goods/k_키링_삐쭈1.jpg",
+    hoverImage: "/assets/goods/k_키링_삐쭈2.jpg",
     description: "잘 삐지지만 제일 아껴주고 싶은 병아리 삐쭈 키링. 토실토실한 볼터치와 앙증맞은 미니 날개가 포인트입니다.",
     options: ["기본형 (병아리 삐쭈)"]
   },
@@ -123,8 +123,8 @@ export const INITIAL_PRODUCTS = [
     reviewsCount: 82,
     isBest: false,
     isNew: true,
-    image: "/assets/goods/k_햄쥐키링1.png",
-    hoverImage: "/assets/goods/k_햄쥐키링2.png",
+    image: "/assets/goods/k_키링_햄쥐1.jpg",
+    hoverImage: "/assets/goods/k_키링_햄쥐2.jpg",
     description: "다가갈까 멀어질까 고민하는 햄스터 햄쥐 키링. 가방이나 키홀더에 달면 은은한 보랏빛 다정함을 더해줍니다.",
     options: ["기본형 (햄스터 햄쥐)"]
   },
@@ -139,8 +139,8 @@ export const INITIAL_PRODUCTS = [
     reviewsCount: 115,
     isBest: true,
     isNew: false,
-    image: "/assets/goods/k_도도키링1.png",
-    hoverImage: "/assets/goods/k_도도키링2.png",
+    image: "/assets/goods/k_키링_도도1.jpg",
+    hoverImage: "/assets/goods/k_키링_도도2.jpg",
     description: "나만의 고유한 영역을 아끼는 시크한 고양이 도도 키링. 톡톡 튀는 그레이 파스텔 톤과 입체적인 귀 모형이 실물 매력 폭발!",
     options: ["기본형 (고양이 도도)"]
   },
