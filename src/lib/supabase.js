@@ -33,10 +33,22 @@ export async function isShopAdmin(userId) {
   return Boolean(data);
 }
 
-export async function signInAdmin(email, password) {
+export async function signInAdmin(loginId, password) {
   const client = requireSupabase();
-  const { data, error } = await client.auth.signInWithPassword({ email: email.trim(), password });
-  if (error) throw new Error('이메일 또는 비밀번호를 확인해주세요.');
+  let result;
+  if (loginId.includes('@')) {
+    result = await client.auth.signInWithPassword({ email: loginId.trim(), password });
+  } else {
+    const response = await fetch('/api/admin-login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: loginId.trim(), password })
+    });
+    const session = await response.json();
+    if (!response.ok) throw new Error(session.error || '아이디 또는 비밀번호를 확인해주세요.');
+    result = await client.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+  }
+  const { data, error } = result;
+  if (error) throw new Error('아이디 또는 비밀번호를 확인해주세요.');
   try {
     if (!await isShopAdmin(data.user.id)) throw new Error('이 계정에는 상품 관리 권한이 없습니다.');
     return data.user;
